@@ -34,7 +34,7 @@ jobs:
       SOURCE_DATABASE: DATAOPS
       SOURCE_SCHEMA: IOT_RAW_V001
       DCM_PROJECT_IDENTIFIER: DATAOPS.IOT_RAW_V001.MOTHER_OF_ALL_PROJECTS
-      DCM_TARGET: DEV
+      DCM_TARGET: CI
       SNOW_CONFIG_B64: ${{ secrets.SNOW_CONFIG_B64 }}
 
     steps:
@@ -87,6 +87,24 @@ jobs:
         with:
           scanMetadataReportFile: '.scannerwork/report-task.txt'
 
+      - name: Clone schema for CI
+        run: |
+          CLONE_SCHEMA="${SOURCE_SCHEMA}_${RELEASE_NUM}"
+          echo "CLONE_SCHEMA=$CLONE_SCHEMA" >> $GITHUB_ENV
+          bash /usr/local/bin/snowflake-clone-db_v2.sh \
+            --SOURCE_DATABASE=$SOURCE_DATABASE \
+            --SOURCE_SCHEMA=$SOURCE_SCHEMA \
+            --CLONE_DATABASE=$SOURCE_DATABASE \
+            --CLONE_SCHEMA=$SOURCE_SCHEMA \
+            --RELEASE_NUM=$RELEASE_NUM \
+            --CONNECTION_NAME=$CONNECTION_NAME
+
+      - name: Patch manifest for CI clone
+        run: |
+          sed -i "s/IOT_RAW_V001_CI_PLACEHOLDER/${CLONE_SCHEMA}/g" manifest.yml
+          echo "Patched manifest.yml CI target schema to: $CLONE_SCHEMA"
+          grep -A2 'CI:' manifest.yml | tail -5
+
       - name: DCM Analyze + Plan + Deploy
         run: |
           bash /usr/local/bin/snowflake-deploy-dcm_v1.sh \
@@ -101,8 +119,18 @@ jobs:
           bash /usr/local/bin/sql_validation_v4.sh \
             --CLONE_DATABASE=$SOURCE_DATABASE \
             --CLONE_SCHEMA=$SOURCE_SCHEMA \
+            --RELEASE_NUM=$RELEASE_NUM \
             --CONNECTION_NAME=$CONNECTION_NAME \
             --TEST_FILE="$(pwd)/sqlunit/tests.sqltest"
+
+      - name: Drop cloned schema
+        if: always()
+        run: |
+          bash /usr/local/bin/snowflake-drop-clone-db_v2.sh \
+            --CLONE_DATABASE=$SOURCE_DATABASE \
+            --CLONE_SCHEMA=$SOURCE_SCHEMA \
+            --RELEASE_NUM=$RELEASE_NUM \
+            --CONNECTION_NAME=$CONNECTION_NAME
 
       - name: Zip source files
         run: |
