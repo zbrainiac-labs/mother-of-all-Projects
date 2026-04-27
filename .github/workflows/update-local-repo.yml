@@ -101,7 +101,6 @@ jobs:
           bash /usr/local/bin/sql_validation_v4.sh \
             --CLONE_DATABASE=$SOURCE_DATABASE \
             --CLONE_SCHEMA=$SOURCE_SCHEMA \
-            --RELEASE_NUM=0 \
             --CONNECTION_NAME=$CONNECTION_NAME \
             --TEST_FILE="$(pwd)/sqlunit/tests.sqltest"
 
