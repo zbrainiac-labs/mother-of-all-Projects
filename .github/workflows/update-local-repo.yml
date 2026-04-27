@@ -92,7 +92,7 @@ jobs:
             --PROJECT_IDENTIFIER=$DCM_PROJECT_IDENTIFIER \
             --CONNECTION_NAME=$CONNECTION_NAME \
             --TARGET=$DCM_TARGET \
-            --ALIAS="release-$RELEASE_NUM" \
+            --ALIAS="release-${RELEASE_NUM}-${GITHUB_RUN_ATTEMPT}" \
             --PROJECT_DIR="$(pwd)"
 
       - name: Clone schema for regression tests
