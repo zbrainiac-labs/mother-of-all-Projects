@@ -82,7 +82,6 @@ jobs:
           bash /usr/local/bin/sonar-scanner_v2.sh
 
       - name: Wait for Quality Gate to complete
-        continue-on-error: true
         uses: sonarsource/sonarqube-quality-gate-action@v1.1.0
         with:
           scanMetadataReportFile: '.scannerwork/report-task.txt'
