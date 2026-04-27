@@ -96,33 +96,34 @@ jobs:
             --ALIAS="release-$RELEASE_NUM" \
             --PROJECT_DIR="$(pwd)"
 
-      - name: Clone schema for regression tests
-        run: |
-          bash /usr/local/bin/snowflake-clone-db_v2.sh \
-            --SOURCE_DATABASE=$SOURCE_DATABASE \
-            --SOURCE_SCHEMA=$SOURCE_SCHEMA \
-            --CLONE_DATABASE=$SOURCE_DATABASE \
-            --CLONE_SCHEMA=$SOURCE_SCHEMA \
-            --RELEASE_NUM=$RELEASE_NUM \
-            --CONNECTION_NAME=$CONNECTION_NAME
+      # --- Clone-based testing (disabled) ---
+      # Uncomment to run SQL tests against an isolated clone instead of the source schema.
+      # - name: Clone schema for regression tests
+      #   run: |
+      #     bash /usr/local/bin/snowflake-clone-db_v2.sh \
+      #       --SOURCE_DATABASE=$SOURCE_DATABASE \
+      #       --SOURCE_SCHEMA=$SOURCE_SCHEMA \
+      #       --CLONE_DATABASE=$SOURCE_DATABASE \
+      #       --CLONE_SCHEMA=$SOURCE_SCHEMA \
+      #       --RELEASE_NUM=$RELEASE_NUM \
+      #       --CONNECTION_NAME=$CONNECTION_NAME
 
       - name: Run SQL Validation Tests
         run: |
           bash /usr/local/bin/sql_validation_v4.sh \
             --CLONE_DATABASE=$SOURCE_DATABASE \
             --CLONE_SCHEMA=$SOURCE_SCHEMA \
-            --RELEASE_NUM=$RELEASE_NUM \
             --CONNECTION_NAME=$CONNECTION_NAME \
             --TEST_FILE="$(pwd)/sqlunit/tests.sqltest"
 
-      - name: Drop cloned schema
-        if: always()
-        run: |
-          bash /usr/local/bin/snowflake-drop-clone-db_v2.sh \
-            --CLONE_DATABASE=$SOURCE_DATABASE \
-            --CLONE_SCHEMA=$SOURCE_SCHEMA \
-            --RELEASE_NUM=$RELEASE_NUM \
-            --CONNECTION_NAME=$CONNECTION_NAME
+      # - name: Drop cloned schema
+      #   if: always()
+      #   run: |
+      #     bash /usr/local/bin/snowflake-drop-clone-db_v2.sh \
+      #       --CLONE_DATABASE=$SOURCE_DATABASE \
+      #       --CLONE_SCHEMA=$SOURCE_SCHEMA \
+      #       --RELEASE_NUM=$RELEASE_NUM \
+      #       --CONNECTION_NAME=$CONNECTION_NAME
 
       - name: Zip source files
         run: |
