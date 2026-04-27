@@ -9,12 +9,6 @@ targets:
     project_owner: CICD
     templating_config: 'DEV'
 
-  CI:
-    account_identifier: SFSEEUROPE-ZS28104
-    project_name: 'DATAOPS.IOT_RAW_V001.MOTHER_OF_ALL_PROJECTS'
-    project_owner: CICD
-    templating_config: 'CI'
-
 templating:
   defaults:
     db: 'DATAOPS'
@@ -24,8 +18,4 @@ templating:
     DEV:
       db: 'DATAOPS'
       schema: 'IOT_RAW_V001'
-      wh: 'MD_TEST_WH'
-    CI:
-      db: 'DATAOPS'
-      schema: 'IOT_RAW_V001_CI_PLACEHOLDER'
       wh: 'MD_TEST_WH'
