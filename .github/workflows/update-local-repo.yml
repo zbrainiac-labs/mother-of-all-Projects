@@ -32,9 +32,9 @@ jobs:
       SONAR_BRANCH_NAME: ${{ github.ref_name }}
       SONAR_HOST: http://sonarqube:9000
       SOURCE_DATABASE: DATAOPS
-      SOURCE_SCHEMA: IOT_RAW_v001
-      CLONE_DATABASE: DATAOPS
-      CLONE_SCHEMA: IOT_CLONE
+      SOURCE_SCHEMA: IOT_RAW_V001
+      DCM_PROJECT_IDENTIFIER: DATAOPS.IOT_RAW_V001.MOTHER_OF_ALL_PROJECTS
+      DCM_TARGET: DEV
       SNOW_CONFIG_B64: ${{ secrets.SNOW_CONFIG_B64 }}
 
     steps:
@@ -47,7 +47,7 @@ jobs:
           echo "Project: $PROJECT_KEY"
           echo "Branch: $SONAR_BRANCH_NAME"
           echo "Release #: $RELEASE_NUM"
-          echo "BASE_DIR_PROJECT: $BASE_DIR_PROJECT"
+          echo "DCM Project: $DCM_PROJECT_IDENTIFIER"
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -86,45 +86,27 @@ jobs:
         with:
           scanMetadataReportFile: '.scannerwork/report-task.txt'
 
-      - name: Run Snowflake Schema Cloning
+      - name: DCM Analyze + Plan + Deploy
         run: |
-          bash /usr/local/bin/snowflake-clone-db_v2.sh \
-            --SOURCE_DATABASE=$SOURCE_DATABASE \
-            --SOURCE_SCHEMA=$SOURCE_SCHEMA \
-            --CLONE_DATABASE=$CLONE_DATABASE \
-            --CLONE_SCHEMA=$CLONE_SCHEMA \
-            --RELEASE_NUM=$RELEASE_NUM \
-            --CONNECTION_NAME=$CONNECTION_NAME
-
-      - name: Run Snowflake Deploy Structure
-        run: |
-          bash /usr/local/bin/snowflake-deploy-structure_v2.sh \
-            --PROJECT_KEY=$PROJECT_KEY \
-            --CLONE_DATABASE=$CLONE_DATABASE \
-            --CLONE_SCHEMA=$CLONE_SCHEMA \
-            --RELEASE_NUM=$RELEASE_NUM \
-            --CONNECTION_NAME=$CONNECTION_NAME
+          bash /usr/local/bin/snowflake-deploy-dcm_v1.sh \
+            --PROJECT_IDENTIFIER=$DCM_PROJECT_IDENTIFIER \
+            --CONNECTION_NAME=$CONNECTION_NAME \
+            --TARGET=$DCM_TARGET \
+            --ALIAS="release-$RELEASE_NUM" \
+            --PROJECT_DIR="$(pwd)"
 
       - name: Run SQL Validation Tests
         run: |
           bash /usr/local/bin/sql_validation_v4.sh \
-            --CLONE_DATABASE=$CLONE_DATABASE \
-            --CLONE_SCHEMA=$CLONE_SCHEMA \
+            --CLONE_DATABASE=$SOURCE_DATABASE \
+            --CLONE_SCHEMA=$SOURCE_SCHEMA \
             --RELEASE_NUM=$RELEASE_NUM \
             --CONNECTION_NAME=$CONNECTION_NAME \
-            --TEST_FILE="/home/docker/actions-runner/_work/$PROJECT_KEY/$PROJECT_KEY/sqlunit/tests.sqltest"
-
-      - name: Drop Cloned Schema After Tests
-        run: |
-          bash /usr/local/bin/snowflake-drop-clone-db_v2.sh \
-            --CLONE_DATABASE=$CLONE_DATABASE \
-            --CLONE_SCHEMA=$CLONE_SCHEMA \
-            --RELEASE_NUM=$RELEASE_NUM \
-            --CONNECTION_NAME=$CONNECTION_NAME
+            --TEST_FILE="$(pwd)/sqlunit/tests.sqltest"
 
       - name: Zip source files
         run: |
-          zip -r release.zip . -x '*.git*' '*.scannerwork*'
+          zip -r release.zip . -x '*.git*' '*.scannerwork*' 'out/*'
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1

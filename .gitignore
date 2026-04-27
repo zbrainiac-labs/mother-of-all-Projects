@@ -1,10 +1,7 @@
-/local-github-process/sec.txt
-/local-github-process/sonarqube/
-/local-github-process/.env
-/local-github-process/docker-compose.yml
-/.idea/
-/.sonarlint/
-/.vscode/
-/.idea/
-/dependencies/
-/mother-of-all-Projects/
+**/.DS_Store
+out/
+output/
+.idea/
+.sonarlint/
+.vscode/
+dependencies/

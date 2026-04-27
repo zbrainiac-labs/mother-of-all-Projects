@@ -1,0 +1,24 @@
+DEFINE TABLE {{db}}.{{schema}}.IOT_RAW (
+    SENSOR_ID NUMBER(38,0),
+    SENSOR_0 NUMBER(10,2),
+    SENSOR_1 NUMBER(10,2),
+    SENSOR_2 NUMBER(10,2),
+    SENSOR_3 NUMBER(10,2),
+    SENSOR_4 NUMBER(10,2),
+    SENSOR_5 NUMBER(10,2),
+    SENSOR_6 NUMBER(10,2),
+    SENSOR_7 NUMBER(10,2),
+    SENSOR_8 NUMBER(10,2),
+    SENSOR_9 NUMBER(10,2),
+    SENSOR_10 NUMBER(10,2),
+    SENSOR_11 NUMBER(10,2)
+)
+CHANGE_TRACKING = TRUE
+COMMENT = 'Raw IOT sensor readings with 12 sensor channels';
+
+DEFINE TABLE {{db}}.{{schema}}.IOTI_RAW_TB_WH_SIZE_RECOMMENDATION (
+    BYTES_SCANNED_LOWER NUMBER(38,0),
+    BYTES_SCANNED_UPPER NUMBER(38,0),
+    RECOMMENDED_SIZE VARCHAR(20)
+)
+COMMENT = 'Warehouse sizing recommendations based on bytes scanned thresholds';

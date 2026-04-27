@@ -1,0 +1,21 @@
+manifest_version: 2
+type: DCM_PROJECT
+default_target: 'DEV'
+
+targets:
+  DEV:
+    account_identifier: SFSEEUROPE-ZS28104
+    project_name: 'DATAOPS.IOT_RAW_V001.MOTHER_OF_ALL_PROJECTS'
+    project_owner: CICD
+    templating_config: 'DEV'
+
+templating:
+  defaults:
+    db: 'DATAOPS'
+    schema: 'IOT_RAW_V001'
+    wh: 'MD_TEST_WH'
+  configurations:
+    DEV:
+      db: 'DATAOPS'
+      schema: 'IOT_RAW_V001'
+      wh: 'MD_TEST_WH'

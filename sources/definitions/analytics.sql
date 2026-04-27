@@ -1,0 +1,20 @@
+DEFINE DYNAMIC TABLE {{db}}.{{schema}}.IOTI_RAW_DT_IOT_MIRROR
+WAREHOUSE = {{wh}}
+TARGET_LAG = '5 MINUTES'
+INITIALIZE = 'ON_CREATE'
+AS
+SELECT
+    SENSOR_ID,
+    SENSOR_0,
+    SENSOR_1,
+    SENSOR_2,
+    SENSOR_3,
+    SENSOR_4,
+    SENSOR_5,
+    SENSOR_6,
+    SENSOR_7,
+    SENSOR_8,
+    SENSOR_9,
+    SENSOR_10,
+    SENSOR_11
+FROM {{db}}.{{schema}}.IOT_RAW;
