@@ -25,7 +25,7 @@ on:
 
 jobs:
   update-and-scan:
-    runs-on: [self-hosted, runner-org-zbrainiac-labs]
+    runs-on: self-hosted
     env:
       PROJECT_KEY: ${{ github.event.repository.name }}
       RELEASE_NUM: ${{ github.run_number }}
