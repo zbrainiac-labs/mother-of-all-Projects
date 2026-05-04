@@ -1,9 +1,9 @@
 CREATE DATABASE IF NOT EXISTS DATAOPS
-    COMMENT = 'Development database for IOT domain - mother-of-all-Projects showcase';
+COMMENT = 'Development database for IOT domain - mother-of-all-Projects showcase';
 
 USE DATABASE DATAOPS;
 
 CREATE SCHEMA IF NOT EXISTS IOT_RAW_V001
-    COMMENT = 'Raw data landing zone for IOT sensor data';
+COMMENT = 'Raw data landing zone for IOT sensor data';
 
 CREATE DCM PROJECT IF NOT EXISTS DATAOPS.IOT_RAW_V001.MOTHER_OF_ALL_PROJECTS;
