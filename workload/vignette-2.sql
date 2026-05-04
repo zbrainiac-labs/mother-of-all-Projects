@@ -249,10 +249,10 @@ SELECT
     101565,
     null,
     200322900,
-    TO_TIMESTAMP_NTZ('08:00:00', 'hh:mi:ss'),
-    TO_TIMESTAMP_NTZ('14:00:00', 'hh:mi:ss'),
+    TO_TIMESTAMP_TZ('08:00:00', 'hh:mi:ss'),
+    TO_TIMESTAMP_TZ('14:00:00', 'hh:mi:ss'),
     null,
-    TO_TIMESTAMP_NTZ('2022-01-27 08:21:08.000'), -- order timestamp
+    TO_TIMESTAMP_TZ('2022-01-27 08:21:08.000'), -- order timestamp
     null,
     'USD',
     14.00,

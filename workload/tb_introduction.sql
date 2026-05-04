@@ -240,7 +240,7 @@ CREATE OR REPLACE TABLE tb_101.raw_pos.order_header
     shift_start_time TIME(9),
     shift_end_time TIME(9),
     order_channel VARCHAR(16777216),
-    order_ts TIMESTAMP_NTZ(9),
+    order_ts TIMESTAMP_TZ(9),
     served_ts VARCHAR(16777216),
     order_currency VARCHAR(3),
     order_amount NUMBER(38,4),
