@@ -75,8 +75,9 @@ SELECT
     cpg.city,
     cpg.country,
     cpg.polygon_wkt
-FROM tb_safegraph.public.frostbyte_tb_safegraph_s cpg
-WHERE 1 = 1
+FROM tb_safegraph.public.frostbyte_tb_safegraph_s AS cpg
+WHERE
+    1 = 1
     AND cpg.top_category = 'Museums, Historical Sites, and Similar Institutions'
     AND cpg.sub_category = 'Museums'
     AND cpg.city = 'Paris'
@@ -96,12 +97,12 @@ CREATE OR REPLACE VIEW analytics.orders_v
 COMMENT = 'Tasty Bytes Order Detail View'
 AS
 SELECT
-    DATE(o.order_ts) AS date,
+    DATE(o.order_ts) AS order_date,
     o.*,
     cpg.* EXCLUDE (location_id, region, phone_number, country)
-FROM tb_101.harmonized.orders_v o
-JOIN tb_safegraph.public.frostbyte_tb_safegraph_s cpg
-    ON o.location_id = cpg.location_id;
+FROM tb_101.harmonized.orders_v AS o
+INNER JOIN tb_safegraph.public.frostbyte_tb_safegraph_s AS cpg
+        ON o.location_id = cpg.location_id;
 
 
 /*----------------------------------------------------------------------------------
@@ -137,9 +138,9 @@ Step 4 - Calculating Straight Line Distance between Points
 -- between the Top Selling Locations in Paris converting to Miles and Kilometers
 WITH _top_10_locations AS (
     SELECT TOP 10
-     location_id,
-     ST_MAKEPOINT(longitude, latitude) AS geo_point,
-     SUM(price) AS total_sales_usd
+        location_id,
+        ST_MAKEPOINT(longitude, latitude) AS geo_point,
+        SUM(price) AS total_sales_usd
     FROM analytics.orders_v
     WHERE primary_city = 'Paris'
     GROUP BY location_id, latitude, longitude
@@ -151,8 +152,8 @@ SELECT
     b.location_id,
     ROUND(ST_DISTANCE(a.geo_point, b.geo_point) / 1609, 2) AS geography_distance_miles,
     ROUND(ST_DISTANCE(a.geo_point, b.geo_point) / 1000, 2) AS geography_distance_kilometers
-FROM _top_10_locations a
-JOIN _top_10_locations b
+FROM _top_10_locations AS a
+INNER JOIN _top_10_locations AS b
     ON a.location_id <> b.location_id -- avoid calculating the distance between the point itself
 QUALIFY a.location_id <> LAG(b.location_id) OVER (ORDER BY geography_distance_miles) -- avoid duplicate: a to b, b to a distances
 ORDER BY geography_distance_miles;
@@ -173,9 +174,9 @@ Step 5 - Collecting Coordinates, Creating a Bounding Polygon & Finding its Cente
 -- let's create a Geographic Collection of Points and build our Minimum Bounding Polygon
 WITH _top_10_locations AS (
     SELECT TOP 10
-     location_id,
-     ST_MAKEPOINT(longitude, latitude) AS geo_point,
-     SUM(price) AS total_sales_usd
+        location_id,
+        ST_MAKEPOINT(longitude, latitude) AS geo_point,
+        SUM(price) AS total_sales_usd
     FROM analytics.orders_v
     WHERE primary_city = 'Paris'
     GROUP BY location_id, latitude, longitude
@@ -199,11 +200,11 @@ FROM _top_10_locations;
 -- now let's find the Geometric Center Point for these key locations
 WITH _top_10_locations AS (
     SELECT TOP 10
-     o.location_id,
-     ST_MAKEPOINT(o.longitude, o.latitude) AS geo_point,
-     SUM(o.price) AS total_sales_usd
-    FROM analytics.orders_v o
-    WHERE primary_city = 'Paris'
+        o.location_id,
+        ST_MAKEPOINT(o.longitude, o.latitude) AS geo_point,
+        SUM(o.price) AS total_sales_usd
+    FROM analytics.orders_v AS o
+    WHERE o.primary_city = 'Paris'
     GROUP BY o.location_id, o.latitude, o.longitude
     ORDER BY total_sales_usd DESC
 )
@@ -211,7 +212,7 @@ WITH _top_10_locations AS (
 SELECT
     ST_COLLECT(tl.geo_point) AS collect_points,
     ST_CENTROID(collect_points) AS geometric_center_point
-FROM _top_10_locations tl;
+FROM _top_10_locations AS tl;
 
 /**
   ST_CENTROID: Returns the Point representing the geometric center of a Geography or Geometry object.
@@ -236,9 +237,9 @@ Step 6 - Finding Locations Furthest Away from our Top Selling Hub
 -- using our Variable, let's find the Top 50 Locations furthest away from our Top Selling Center Point in Paris
 WITH _paris_locations AS (
     SELECT DISTINCT
-     location_id,
-     location_name,
-     ST_MAKEPOINT(longitude, latitude) AS geo_point
+        location_id,
+        location_name,
+        ST_MAKEPOINT(longitude, latitude) AS geo_point
     FROM analytics.orders_v
     WHERE primary_city = 'Paris'
 )
@@ -275,9 +276,9 @@ SELECT DISTINCT
     H3_LATLNG_TO_CELL_STRING(latitude, longitude, 8) AS h3_hex_resolution_8,
     H3_LATLNG_TO_CELL(latitude, longitude, 12) AS h3_integer_resolution_12,
     H3_LATLNG_TO_CELL_STRING(latitude, longitude, 12) AS h3_hex_resolution_12
-         --> resolution 4 = 288 thousand hexagons covering the globe
-         --> resolution 8 = 92 billion hexagons covering the globe
-         --> resolution 12 = 1.6 billion hexagons covering the globe
+-- resolution 4 = 288 thousand hexagons covering the globe
+-- resolution 8 = 92 billion hexagons covering the globe
+-- resolution 12 = 1.6 billion hexagons covering the globe
 FROM analytics.orders_v
 WHERE location_name = 'Musee du Louvre';
 
@@ -320,11 +321,11 @@ ORDER BY total_sales_usd DESC;
 -- of H3 Cell IDs with Resolution 6 that include our Top 50 selling locations
 WITH _top_50_locations AS (
     SELECT TOP 50
-     location_id,
-     location_name,
-     H3_LATLNG_TO_CELL(latitude, longitude, 6) AS h3_integer_resolution_6,
-     H3_LATLNG_TO_CELL_STRING(latitude, longitude, 6) AS h3_hex_resolution_6,
-     SUM(price) AS total_sales_usd
+        location_id,
+        location_name,
+        H3_LATLNG_TO_CELL(latitude, longitude, 6) AS h3_integer_resolution_6,
+        H3_LATLNG_TO_CELL_STRING(latitude, longitude, 6) AS h3_hex_resolution_6,
+        SUM(price) AS total_sales_usd
     FROM analytics.orders_v
     WHERE primary_city = 'Paris'
     GROUP BY ALL
@@ -340,11 +341,11 @@ FROM _top_50_locations;
 -- these results will help the business locate areas and locations that we should ensure are always occupied by our trucks
 WITH _top_50_locations AS (
     SELECT TOP 50
-     location_id,
-     ARRAY_SIZE(ARRAY_UNIQUE_AGG(customer_id)) AS customer_loyalty_visitor_count,
-     H3_LATLNG_TO_CELL(latitude, longitude, 7) AS h3_integer_resolution_6,
-     H3_LATLNG_TO_CELL_STRING(latitude, longitude, 7) AS h3_hex_resolution_6,
-     SUM(price) AS total_sales_usd
+        location_id,
+        ARRAY_SIZE(ARRAY_UNIQUE_AGG(customer_id)) AS customer_loyalty_visitor_count,
+        H3_LATLNG_TO_CELL(latitude, longitude, 7) AS h3_integer_resolution_6,
+        H3_LATLNG_TO_CELL_STRING(latitude, longitude, 7) AS h3_hex_resolution_6,
+        SUM(price) AS total_sales_usd
     FROM analytics.orders_v
     WHERE primary_city = 'Paris'
     GROUP BY ALL
@@ -362,7 +363,7 @@ ORDER BY total_sales_usd DESC;
 
 
 -- to conclude, let's see if our two Top Selling Resolution 6 Hexagons border each other
-    --> NOTE: A neighbour cell is one step away and two cells with one hexagon between them are two steps apart.
+-- NOTE: A neighbour cell is one step away and two cells with one hexagon between them are two steps apart.
 SELECT H3_GRID_DISTANCE('871fb4671ffffff', '871fb4670ffffff') AS cell_distance;
 
 /**
