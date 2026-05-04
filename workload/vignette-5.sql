@@ -77,10 +77,10 @@ SELECT
     pc.city_name AS city,
     c.country AS country_desc
 FROM zts_weathersource.onpoint_id.history_day hd
-JOIN zts_weathersource.onpoint_id.postal_codes pc
+INNER JOIN zts_weathersource.onpoint_id.postal_codes pc
     ON pc.postal_code = hd.postal_code
     AND pc.country = hd.country
-JOIN raw_pos.country c
+INNER JOIN raw_pos.country c
     ON c.iso_country = hd.country
     AND c.city = hd.city_name;
 
@@ -191,7 +191,7 @@ SELECT
     sg.includes_parking_lot,
     sg.open_hours
 FROM raw_pos.location l
-JOIN zts_safegraph.public.frostbyte_tb_safegraph_s sg 
+INNER JOIN zts_safegraph.public.frostbyte_tb_safegraph_s sg 
     ON l.location_id = sg.location_id
     AND l.iso_country_code = sg.iso_country_code;
 
@@ -202,7 +202,7 @@ SELECT TOP 3
     p.postal_code,
     AVG(hd.max_wind_speed_100m_mph) AS average_wind_speed
 FROM harmonized.tastybytes_poi_v AS p
-JOIN
+INNER JOIN
     zts_weathersource.onpoint_id.history_day AS hd
     ON p.postal_code = hd.postal_code
 WHERE
@@ -230,7 +230,7 @@ WITH TopWindiestLocations AS (
     SELECT TOP 3
         p.location_id
     FROM harmonized.tastybytes_poi_v AS p
-    JOIN
+    INNER JOIN
         zts_weathersource.onpoint_id.history_day AS hd
         ON p.postal_code = hd.postal_code
     WHERE
@@ -248,7 +248,7 @@ SELECT
         AVG(CASE WHEN hd.max_wind_speed_100m_mph > 20 THEN o.order_total END),
     2)) AS avg_sales_windy_days
 FROM analytics.orders_v AS o
-JOIN
+INNER JOIN
     zts_weathersource.onpoint_id.history_day AS hd
     ON o.primary_city = hd.city_name
     AND DATE(o.order_ts) = hd.date_valid_std
