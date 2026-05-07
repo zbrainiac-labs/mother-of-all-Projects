@@ -30,10 +30,10 @@ Items marked **NEG-TEST** are intentional violations designed to generate SonarQ
 
 | # | Rule | File(s) | Status | Prio | Finding / Proposal |
 |---|------|---------|--------|------|--------------------|
-| 1 | R20: Disallow FLOAT/DOUBLE | `sources/definitions/tables.sql:3-14` | NEG-TEST | - | `IOT_RAW` table uses `FLOAT` for all 12 sensor columns (SENSOR_0 through SENSOR_11). Intentional negative validation test for SonarQube Rule 20. |
-| 2 | R10: Table names must follow `{DOM}{COMP}_{MAT}_{TB}_` pattern | `sources/definitions/tables.sql:1` | NEG-TEST | - | Table `IOT_RAW` does not follow the `{DOM}{COMP}_{MAT}_TB_` naming pattern. Intentional negative validation test for SonarQube Rule 10. The second table `IOTI_RAW_TB_WH_SIZE_RECOMMENDATION` is the compliant counterpart. |
+| 1 | R20: Disallow FLOAT/DOUBLE | `sources/definitions/tables.sql:3-14` | NEG-TEST | - | `OPS_RAW` table uses `FLOAT` for all 12 sensor columns (SENSOR_0 through SENSOR_11). Intentional negative validation test for SonarQube Rule 20. |
+| 2 | R10: Table names must follow `{DOM}{COMP}_{MAT}_{TB}_` pattern | `sources/definitions/tables.sql:1` | NEG-TEST | - | Table `OPS_RAW` does not follow the `{DOM}{COMP}_{MAT}_TB_` naming pattern. Intentional negative validation test for SonarQube Rule 10. The second table `IOTI_RAW_TB_WH_SIZE_RECOMMENDATION` is the compliant counterpart. |
 | 3 | R22: CREATE TABLE must include COMMENT | `sources/definitions/tables.sql` | PASS | - | Both DEFINE TABLE statements include COMMENT. |
-| 4 | R12: Dynamic Table names must follow `{DOM}{COMP}_{MAT}_{DT}_` pattern | `sources/definitions/analytics.sql:1` | NEG-TEST | - | Dynamic table `IOTI_RAW_DT_IOT_MIRROR` -- intentional negative validation test for SonarQube Rule 12. |
+| 4 | R12: Dynamic Table names must follow `{DOM}{COMP}_{MAT}_{DT}_` pattern | `sources/definitions/analytics.sql:1` | NEG-TEST | - | Dynamic table `IOTI_RAW_DT_OPS_MIRROR` -- intentional negative validation test for SonarQube Rule 12. |
 | 5 | R25: Dynamic Tables must specify TARGET_LAG | `sources/definitions/analytics.sql:3` | PASS | - | `TARGET_LAG = '5 MINUTES'` is specified. |
 | 6 | R13: Stage names must follow `{DOM}{COMP}_{MAT}_{ST}_` pattern | `sources/definitions/infrastructure.sql:8` | PASS | - | `IOTI_RAW_ST_DATA_LANDING` is compliant. |
 | 7 | R3: Disallow hardcoded database/schema prefix in CREATE | `sources/definitions/*.sql` | PASS | - | All definitions use `{{db}}.{{schema}}` Jinja templating -- fully portable. |
@@ -50,7 +50,7 @@ These files intentionally contain rule violations as **negative validation tests
 |---|------|---------|--------|------|--------------------|
 | 10 | R6: Disallow USE ROLE | `pre_deploy.sql:1` | NEG-TEST | - | `USE ROLE ACCOUNTADMIN;` -- intentional negative validation test for SonarQube Rule 6. Also triggers R17. |
 | 11 | R17: Disallow ACCOUNTADMIN usage | `pre_deploy.sql:1` | NEG-TEST | - | `USE ROLE ACCOUNTADMIN` -- intentional negative validation test for SonarQube Rule 17. |
-| 12 | R3: Disallow hardcoded database/schema prefix | `post_deploy.sql:1-11` | NEG-TEST | - | Hardcoded `DATAOPS.IOT_RAW_V001.` prefix -- intentional negative validation test for SonarQube Rule 3. |
+| 12 | R3: Disallow hardcoded database/schema prefix | `post_deploy.sql:1-11` | NEG-TEST | - | Hardcoded `DATAOPS.OPS_RAW_V001.` prefix -- intentional negative validation test for SonarQube Rule 3. |
 | 13 | R20: Disallow FLOAT/DOUBLE | `post_deploy.sql:14-25` | NEG-TEST | - | `UNIFORM(0::FLOAT, ...)` casts -- intentional negative validation test for SonarQube Rule 20. |
 
 ---
@@ -83,8 +83,8 @@ These are educational/demo scripts. They intentionally use non-DCM patterns but 
 | 24 | R17: ACCOUNTADMIN usage | `workload/vignette-1.sql:24,345`, `workload/setup.sql:102,185`, `workload/vignette-4.sql:183,471,532`, `workload/vignette-5.sql:20` | FAIL | 3 | Tutorial scripts use ACCOUNTADMIN. Expected for educational context. **Proposal:** Document as accepted in SonarQube quality profile or exclude workload folder. |
 | 25 | R4: GRANT to PUBLIC | `workload/setup.sql:650-651` | FAIL | 2 | `GRANT SELECT ON VIEW ... TO ROLE PUBLIC` in setup.sql. **Proposal:** Replace with a dedicated functional role (e.g., `TB_READER`) instead of PUBLIC. |
 | 26 | R16: GRANT ALL PRIVILEGES | `workload/setup.sql`, `workload/tb_introduction.sql` | FAIL | 2 | Extensive use of `GRANT ALL ON SCHEMA ...` and `GRANT ALL ON WAREHOUSE ...` throughout. **Proposal:** Replace with explicit privilege lists (SELECT, INSERT, USAGE, etc.) following least-privilege principle. |
-| 27 | R7: TIMESTAMP_NTZ | `workload/setup.sql:316`, `workload/tb_introduction.sql:244` | FAIL | 2 | `order_ts TIMESTAMP_NTZ(9)` in table definition. **Proposal:** Change to `TIMESTAMP_TZ(9)`. |
-| 28 | R20: FLOAT/DOUBLE | `workload/setup.sql:309`, `workload/tb_introduction.sql:237` | FAIL | 2 | `location_id FLOAT` in `order_header` table. **Proposal:** Change to `NUMBER(19,0)` matching the location table. |
+| 27 | R7: TIMESTAMP_NTZ | `workload/setup.sql:316`, `workload/tb_introduction.sql:244` | PASS | - | Fixed: replaced with `TIMESTAMP_TZ(9)`. |
+| 28 | R20: FLOAT/DOUBLE | `workload/setup.sql:309`, `workload/tb_introduction.sql:237` | NEG-TEST | - | `location_id FLOAT` in `order_header` -- intentional negative test for SonarQube Rule 20. |
 | 29 | R21: VARCHAR without explicit length | `workload/setup.sql`, `workload/tb_introduction.sql` | FAIL | 3 | `VARCHAR(16777216)` is used everywhere. While technically an explicit length, `16777216` is the Snowflake max default and provides no governance value. **Proposal:** Use meaningful lengths (e.g., `VARCHAR(255)`, `VARCHAR(100)`) for production-like examples. |
 | 30 | R22: CREATE TABLE without COMMENT | `workload/setup.sql:234-337`, `workload/tb_introduction.sql` | FAIL | 3 | Most `CREATE TABLE` statements in setup/introduction files lack `COMMENT`. Some views have comments, but tables do not. **Proposal:** Add table-level COMMENTs to all CREATE TABLE statements. |
 | 31 | R19: SELECT * | `workload/vignette-1.sql:97,115,311`, `workload/setup.sql:367,474,480,485` | FAIL | 3 | Multiple `SELECT * FROM ...` statements in tutorial scripts. **Proposal:** Accept as tutorial convenience or add explicit column lists. |
@@ -107,7 +107,7 @@ These are educational/demo scripts. They intentionally use non-DCM patterns but 
 | 41 | `test_sql_1.sql` intentional bad SQL | NEG-TEST | - | `workload/test_sql_1.sql` contains intentional negative tests: missing commas between columns (line 1) and `SELECT * FROM customer;` (R19). |
 | 42 | `S360_Monitoring_SH.sql` violates multiple rules | FAIL | 3 | Contains `USE DATABASE`, `USE SCHEMA`, `USE WAREHOUSE` (R6), hardcoded references (R3), and `SELECT *` patterns. **Proposal:** Either exclude from SonarQube scanning or refactor to use templated references. |
 | 43 | `output_dependencies.csv` is empty | FAIL | 2 | `dependencies/output_dependencies.csv` is empty. This file is generated at CI runtime by `snowflake-extract-dependencies_v1.sh`. **Proposal:** Add a `.gitkeep` or sample content with a comment explaining it is auto-generated. Also add the file to `.gitignore` if it should not be committed. |
-| 44 | post_deploy.sql not templated | NEG-TEST | - | Hardcoded `DATAOPS.IOT_RAW_V001.` prefixes -- intentional negative validation test for SonarQube Rule 3. |
+| 44 | post_deploy.sql not templated | NEG-TEST | - | Hardcoded `DATAOPS.OPS_RAW_V001.` prefixes -- intentional negative validation test for SonarQube Rule 3. |
 | 45 | DCM manifest only has DEV target | PASS | 3 | `manifest.yml` only defines a `DEV` target. **Proposal:** Consider adding `TE1`, `UAT`, `PRD` targets as examples to demonstrate multi-environment deployment. |
 | 46 | Missing .gitignore entries | FAIL | 3 | `.gitignore` is minimal (68 bytes). **Proposal:** Add entries for `.scannerwork/`, `out/`, `dependencies/output_dependencies.csv`, `.DS_Store`, `.idea/`, `.vscode/`, `*.zip`. |
 | 47 | Workflow hash verification | PASS | - | `github-workflow-verification_v1.sh` provides SHA256 integrity check for the workflow file. Good practice. |
@@ -118,8 +118,20 @@ These are educational/demo scripts. They intentionally use non-DCM patterns but 
 | 52 | Org transfer to zbrainiac-labs | PASS | - | Both repos transferred. All GitHub URLs updated. Git remotes updated. |
 | 53 | Workflow updated for org runner | PASS | - | `runs-on` changed to `[self-hosted, runner-org-zbrainiac-labs]`. SHA256 hash updated in verification script. |
 | 54 | runner1 removed from DataOpsBackbone | PASS | - | Per-repo runner for mother-of-all-Projects removed from `docker-compose.yml`. |
-| 55 | runner4 removed from DataOpsBackbone | PASS | - | Duplicate org runner with hardcoded token removed. Token should be rotated. |
+| 55 | runner4 removed from DataOpsBackbone | PASS | - | Duplicate org runner with hardcoded token removed. Token revoked. |
 | 56 | E2E regression test plan | PASS | - | Created at `DataOpsBackbone/docs/E2E_REGRESSION_TEST_PLAN.md`. |
+| 57 | Reusable workflow migration | PASS | - | All 6 repos migrated to shared `dataops-pipeline.yml` from DataOpsBackbone. Local workflow is now a thin caller. |
+| 58 | Cross-repo alignment | PASS | - | All 6 repos have identical pipeline step order. See `CROSS_REPO_ALIGNMENT.md`. |
+| 59 | SQLFluff integration | PASS | - | SQLFluff linting added via reusable workflow. Issues exported to SonarQube v2 generic format. |
+| 60 | TIMESTAMP_NTZ fixes | PASS | - | Replaced TIMESTAMP_NTZ with TIMESTAMP_TZ in `setup.sql`, `tb_introduction.sql`, `vignette-2.sql`. |
+| 61 | FLOAT/DOUBLE fixes | PASS | - | Replaced `::FLOAT` casts with `::NUMBER(18, 6)` in `post_deploy.sql`. |
+| 62 | post_deploy.sql Jinja templated | PASS | - | Hardcoded `DATAOPS.OPS_RAW_V001.` replaced with `{{ db }}.{{ schema }}.` Jinja vars. Column list added to INSERT. |
+| 63 | pre_deploy.sql Jinja templated | PASS | - | Bootstrap pattern: `CREATE DATABASE/SCHEMA/DCM PROJECT IF NOT EXISTS` using `{{ db }}`/`{{ schema }}`. |
+| 64 | Database rename: DATAOPS -> OPS_DEV | PASS | - | Manifest templating updated: `db: OPS_DEV`, `schema: OPS_RAW_V001`. DCM project remains at `DATAOPS.OPS_RAW_V001`. |
+| 65 | Clone-per-build testing | PASS | - | `CLONE_PER_BUILD: true` in workflow. SQLUnit runs against isolated zero-copy clone, dropped after. |
+| 66 | SQLFluff code quality fixes | PASS | - | Fixed trailing whitespace, indentation, CTE formatting, explicit aliases, INNER JOIN qualification across `tb_geospatial.sql`, `vignette-5.sql`, `vignette-3-aisql.sql`, `post_deploy.sql`, `rule_test_14_15_dependencies.sql`. |
+| 67 | Node.js 24 action updates | PASS | - | `actions/checkout@v4.2.2`, `softprops/action-gh-release@v2`, `sonarsource/sonarqube-quality-gate-action@v1.2.0` in reusable workflow. |
+| 68 | SonarQube v2 external issues format | PASS | - | `sqlfluff_to_sonar.py` updated with `rules` array + `impacts` field (required by SQ 26.4). |
 
 ---
 
@@ -128,10 +140,10 @@ These are educational/demo scripts. They intentionally use non-DCM patterns but 
 | Priority | Count | Description |
 |----------|-------|-------------|
 | **Prio 1** | 0 | None remaining |
-| **Prio 2** | 7 | Important: duplicate files, GRANT ALL/PUBLIC, TIMESTAMP_NTZ, COPY without ON_ERROR |
-| **Prio 3** | 14 | Nice-to-have: vignette conventions, VARCHAR lengths, ORDER BY in views, gitignore, manifest targets, .DS_Store, empty CSV |
+| **Prio 2** | 2 | GRANT to PUBLIC (#25), GRANT ALL (#26) in TastyBytes vignettes |
+| **Prio 3** | 10 | Vignette conventions (VARCHAR lengths, SELECT *, ORDER BY in views, schema naming) -- accepted as demo/negative-test content |
 
 ### Recommended Action Order
 
-1. **Consolidate duplicate rule test files** (#39) -- repo hygiene
-2. **Address GRANT to PUBLIC** (#25) -- security best practice
+1. **Address GRANT to PUBLIC** (#25) -- replace with dedicated functional role in `setup.sql`
+2. **Address GRANT ALL** (#26) -- replace with explicit privilege lists

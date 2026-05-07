@@ -1,4 +1,4 @@
-DEFINE TABLE {{db}}.{{schema}}.IOT_RAW (
+DEFINE TABLE {{db}}.{{schema}}.OPS_RAW (
     SENSOR_ID NUMBER(38,0),
     SENSOR_0 FLOAT,
     SENSOR_1 FLOAT,

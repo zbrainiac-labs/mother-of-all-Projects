@@ -6,7 +6,7 @@ SELECT
     SENSOR_1,
     SENSOR_2,
     SENSOR_3
-FROM {{db}}.{{schema}}.IOT_RAW;
+FROM {{db}}.{{schema}}.OPS_RAW;
 
 DEFINE VIEW {{db}}.{{schema}}.IOTI_RAW_VW_SENSOR_12
 AS
@@ -16,12 +16,12 @@ SELECT
     SENSOR_1,
     SENSOR_2,
     SENSOR_3
-FROM {{db}}.{{schema}}.IOT_RAW
+FROM {{db}}.{{schema}}.OPS_RAW
 WHERE SENSOR_ID = 12;
 
 DEFINE VIEW {{db}}.{{schema}}.IOTI_RAW_VW_SENSOR_102_AVG
 AS
 SELECT
     AVG(SENSOR_0) AS AVG_102
-FROM {{db}}.{{schema}}.IOT_RAW
+FROM {{db}}.{{schema}}.OPS_RAW
 WHERE SENSOR_ID = 102;
