@@ -10,7 +10,7 @@ jobs:
     uses: zbrainiac-labs/DataOpsBackbone/.github/workflows/dataops-pipeline.yml@main
     with:
       SOURCE_DATABASE: OPS_DEV
-      SOURCE_SCHEMA: OPS_DCM
+      SOURCE_SCHEMA: OPS_RAW_v001
       DCM_PROJECT_IDENTIFIER: OPS_DEV.OPS_DCM.MOTHER_OF_ALL_PROJECTS
       DCM_TARGET: DEV
       CLONE_PER_BUILD: true
