@@ -20,4 +20,5 @@ jobs:
       DCM_PROJECT_IDENTIFIER: OPS_DEV.OPS_DCM.MOTHER_OF_ALL_PROJECTS
       DCM_TARGET: DEV
       CLONE_PER_BUILD: true
+      USE_OIDC: false
     secrets: inherit
