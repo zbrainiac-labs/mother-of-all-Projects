@@ -5,6 +5,7 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# OIDC (id-token) + GitHub release (contents) for the reusable pipeline
 permissions:
   id-token: write
   contents: write
@@ -20,5 +21,5 @@ jobs:
       DCM_PROJECT_IDENTIFIER: OPS_DEV.OPS_DCM.MOTHER_OF_ALL_PROJECTS
       DCM_TARGET: DEV
       CLONE_PER_BUILD: true
-      USE_OIDC: false
+      SNOWFLAKE_ACCOUNT: SFSEEUROPE-DEMO_MDAEPPEN
     secrets: inherit
